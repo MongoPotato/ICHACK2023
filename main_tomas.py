@@ -6,6 +6,7 @@
 #in a transaction, there is the sender, the receiver, the amount, the date and the signature 
 
 from hashlib import sha256
+<<<<<<< HEAD
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -22,11 +23,14 @@ class Signing:
         return self.private_key.sign(transaction_hash, padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH), hashes.SHA256())
 
 
+=======
+>>>>>>> a066d0236461f19522af6f7bb3b487049bafc4c5
 
 class Transaction:
     def __init__(self):
         self.sender = "" #identified by the public key
         self.receiver = "" #identified by the public key
+<<<<<<< HEAD
         self.amount = 0  #amount of money being sent after commission is taken by the miner
         self.date = "" 
         self.hash = self.calculate_hash()
@@ -46,14 +50,27 @@ class Transaction:
         self.sender = sender
     def 
     
+=======
+        self.amount = 0  #amount of money beign sent after commission is taken by the miner
+        self.date = "" 
+        self.signature = "" 
+        self.date = ""
+>>>>>>> a066d0236461f19522af6f7bb3b487049bafc4c5
     
 
 class Wallet:
     def __init__(self):
+<<<<<<< HEAD
         #generate a public key and a private key with cryptography library
         self.private_key = rsa.generate_private_key(public_exponent=65537,key_size=2048,)
         self.public_key = self.private_key.public_key()
         self.balance = 0 #amount of money in the wallet
+=======
+        self.id = "" #the id is the private key
+        self.public_key = "" #the public key is the id of the wallet to be broadcasted
+        self.token = "" 
+        self.address = "" #hash of the token API 
+>>>>>>> a066d0236461f19522af6f7bb3b487049bafc4c5
 
 
 class Block:
@@ -121,7 +138,10 @@ class Blockchain:
                 return False
             if current_block.previous_hash != previous_block.hash:
                 return False
+<<<<<<< HEAD
             
+=======
+>>>>>>> a066d0236461f19522af6f7bb3b487049bafc4c5
         return True
 
     def add_transaction(self, sender, receiver, amount, date, signature):

@@ -81,7 +81,7 @@ def print_users() :
 #https://widget.tryterra.co/session/0b625869-adfa-4dcc-987b-9ffc868cce26
 
 
-def get_activity(user_id):
+def get_activity(user_id,start_date='2023-02-04',end_date='2023-02-04'):
 
 
     headers = {
@@ -95,11 +95,10 @@ def get_activity(user_id):
     params = {
         'to_webhook': 'false',
         'user_id': user_id,
-        'start_date': '2023-02-03',
-        'end_date': '2023-02-04'
+        'start_date': start_date,
+        'end_date': end_date
     }
-
-    response = requests.get('https://api.tryterra.co/v2/activity', headers=headers, params=params)
+    response = requests.get('https://api.tryterra.co/v2/daily', headers=headers, params=params)
 
 
 
@@ -109,6 +108,12 @@ def get_activity(user_id):
     else:
         print("Request failed with status code:", response.status_code,response.json())
         return None
+
+
+def get_steps(user_id):
+    resp = get_activity(user_id)
+    return resp["data"][0]["distance_data"]["steps"]
+
 
 """
 
@@ -128,4 +133,7 @@ for user in response["users"] :
 """
 
 
-get_activity("23dba714-7ee0-4c02-b0ba-e49511b1944d")
+#request_session()
+#clear_users()
+#print_users()
+print(get_steps("ddede8b9-85f7-4a0c-833b-5f7b9f0a5328"))

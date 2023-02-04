@@ -101,7 +101,7 @@ class SportBlockchain:
             
             sender = transaction.getSender()
             c.execute("SELECT * FROM sportblockchain WHERE miner = ?", sender)
-            data = c.fetone()
+            data = c.fetchone()
             if(data is not None):
                     # find sum on blockchain from prev transaction to check if balance is correct
                 pass

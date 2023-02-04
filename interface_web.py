@@ -23,4 +23,4 @@ st.write("The receiver's address is:", receiver_pk)
 amount = st.number_input('Insert the amount of the transaction')
 st.write('Amount: ', amount)
 
-transaction  =Transaction(sender_pk, receiver_pk, amount)
+transaction = Transaction(sender_pk, receiver_pk, amount)

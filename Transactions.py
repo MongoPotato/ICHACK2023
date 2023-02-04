@@ -1,12 +1,14 @@
 import Wallet
+from Signing import Signing
+
 
 class Transaction:
-    def __init__(self,sender,receiver,amount,date,signature):
+    def __init__(self,sender,receiver,amount,date):
         self.sender = sender #identified by the public key
         self.receiver = receiver #identified by the public key
         self.amount = amount  #amount of money beign sent after commission is taken by the miner
         self.date = date 
-        self.signature = signature 
+        self.signature = self.sign()
 
         #database transaction -> sender, receiver, amount, 
 

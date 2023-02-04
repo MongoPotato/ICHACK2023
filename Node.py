@@ -9,14 +9,22 @@ class  SportNode(Node):
         return Node(self, connection, id, host, port)
 
     def node_message(self, node, data):
-        
+
+
+        if self.check_message(data):
+            if("_type" in data):
+                if (data["_type"] == "transaction"):
+                    
+                    #check transaction 
+                    pass
+                else:
+                    self.debug.print("message type unknown ", data)
         pass
 
     def check_message(self, data):
         self.debug_print("Incomming message")
         self.debug_print(data)
 
-        transaction = data['_transaction']
         sender = data['_sender']
         receiver = data['_receiver']
         amount = data['_amount']
@@ -35,5 +43,5 @@ class  SportNode(Node):
         newdata['_amount'] = amount
         newdata['_date'] = date
 
-        
-        return 
+        #TODO add return
+        pass

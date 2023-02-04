@@ -12,32 +12,35 @@ class SportBlockchain:
 
     def init_database(self):
         c = self.db.cursor()
-        c.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='sportblockchain")
+        c.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='sportblockchain'")
         
         if(c.fetchone()[0] != 1):
             c.execute("""CREATE TABLE sportblockchain(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id INTEGER PRIMARY KEY,
                 timestamp TEXT,
                 transactions TEXT,
                 type TEXT,
                 miner TEXT,
                 prevblock TEXT,
+                )
             """)
 
-            c.execute("""CREATE TABLE transaction(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+            c.execute("""CREATE TABLE transaction_block(
+                id INTEGER PRIMARY KEY,
                 sender TEXT,
                 receiver TEXT,
                 amount INTEGER,
                 date TEXT,
-                type TEXT,
-            )""")
+                type TEXT
+                )""")
             
             c.execute("""CREATE TABLE transactionpoolblock(
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    timestamp TEXT,
-                    type TEXT,
-                    FOREIGN KEY transaction_id REFERENCES transaction(id),
+                id INTEGER PRIMARY KEY,
+                timestamp TEXT,
+                type TEXT,
+                transaction_id INT,
+                FOREIGN KEY (transaction_id) REFERENCES transaction_block(id)
+                )
             """)
 
              # think about timestamp genesis block
@@ -52,7 +55,7 @@ class SportBlockchain:
 
         if(self.check_block(block)):
             c = self.db.cursor()
-            c.execute("INSERT INTO sportblockchain (timestamp, transactions, type, miner, prevblock) VALUES ?, ?, ?, ?, ?)",
+            c.execute("INSERT INTO sportblockchain (timestamp, transactions, type, miner, prevblock) VALUES (?, ?, ?, ?, ?)",
                 ( block["timestamp"],
                   block["transactions"], # json.dumps(block["data"], sort_keys=True)
                   block["type"],
@@ -96,22 +99,24 @@ class SportBlockchain:
         return None
     
     def check_transaction(self, transaction):
-            #check if transaction is valid and wallet is valid
-            c = self.db.cursor()
-            
-            sender = transaction.getSender()
-            c.execute("SELECT * FROM sportblockchain WHERE miner = ?", sender)
-            data = c.fetchone()
-            if(data is not None):
-                    # find sum on blockchain from prev transaction to check if balance is correct
-                pass
-            else:
-                data = c.execute("SELECT sender, receiver FROM transaction")
-                
-                # data check if sender or receiver from blockchain is present in transaction
-                # if not reject transaction
+        #check if transaction is valid and wallet is valid
+        c = self.db.cursor()
+    
+        sender = transaction.getSender()
+        c.execute("SELECT * FROM sportblockchain WHERE miner = ?", sender)
+        data = c.fetchone()
+        if(data is not None): #Si le mineur est bien présent sur la bc, on 
+                # find sum on blockchain from prev transaction to check if balance is correct
+            pass
+        else:
+            c.execute("SELECT sender, receiver FROM transaction_block")
+            data = c.fetchall()
+            # data check if sender or receiver from blockchain is present in transaction
+            # if not reject transaction
 
-            data = c.execute("SELECT transaction FROM transactionpoolblock")
+        c.execute("SELECT transaction_block FROM transactionpoolblock")
+        data = c.fetchall()
+
         pass
 
 

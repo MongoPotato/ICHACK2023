@@ -6,23 +6,51 @@
 #in a transaction, there is the sender, the receiver, the amount, the date and the signature 
 
 from hashlib import sha256
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric import rsa
+
+
+
+class Signing:
+    def __init__(self):
+        self.public_key = ""
+        self.private_key = ""
+        self.signature = self.sign()
+
+    def sign(self, transaction_hash):
+        return self.private_key.sign(transaction_hash, padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH), hashes.SHA256())
+
+
 
 class Transaction:
     def __init__(self):
         self.sender = "" #identified by the public key
         self.receiver = "" #identified by the public key
-        self.amount = 0  #amount of money beign sent after commission is taken by the miner
+        self.amount = 0  #amount of money being sent after commission is taken by the miner
         self.date = "" 
-        self.signature = "" 
-        self.date = ""
+        self.hash = self.calculate_hash()
+        self.signature = self.sign()
+
+    def sign(self):
+        return Signing(self.sender, self.sender_pk).sign(self.hash)
     
+    def calculate_hash(self):
+        #we need to calculate the hash of the transaction
+        #the hash is going to be the hash of the sender, the receiver, the amount, the date and the signature
+        return sha256((str(self.sender) + str(self.receiver) + str(self.amount) + str(self.date)).encode()).hexdigest()
+
+    def getSender(self):
+        return self.sender
+    def setSender(self, sender):
+        self.sender = sender
 
 class Wallet:
     def __init__(self):
-        self.id = "" #the id is the private key
-        self.public_key = "" #the public key is the id of the wallet to be broadcasted
-        self.token = "" 
-        self.address = "" #hash of the token API 
+        #generate a public key and a private key with cryptography library
+        self.private_key = rsa.generate_private_key(public_exponent=65537,key_size=2048,)
+        self.public_key = self.private_key.public_key()
+        self.balance = 0 #amount of money in the wallet
 
 
 class Block:
@@ -90,6 +118,7 @@ class Blockchain:
                 return False
             if current_block.previous_hash != previous_block.hash:
                 return False
+            
         return True
 
     def add_transaction(self, sender, receiver, amount, date, signature):

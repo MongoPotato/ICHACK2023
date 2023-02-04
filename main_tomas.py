@@ -8,6 +8,7 @@
 from hashlib import sha256
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 
 
@@ -25,7 +26,6 @@ class Signing:
 class Transaction:
     def __init__(self):
         self.sender = "" #identified by the public key
-        self.sender_pk = "" #private key of the sender
         self.receiver = "" #identified by the public key
         self.amount = 0  #amount of money being sent after commission is taken by the miner
         self.date = "" 
@@ -39,14 +39,21 @@ class Transaction:
         #we need to calculate the hash of the transaction
         #the hash is going to be the hash of the sender, the receiver, the amount, the date and the signature
         return sha256((str(self.sender) + str(self.receiver) + str(self.amount) + str(self.date)).encode()).hexdigest()
+
+    def getSender(self):
+        return self.sender
+    def setSender(self, sender):
+        self.sender = sender
+    def 
+    
     
 
 class Wallet:
     def __init__(self):
-        self.id = "" #the id is the private key
-        self.public_key = "" #the public key is the id of the wallet to be broadcasted
-        self.token = "" 
-        self.address = "" #hash of the token API 
+        #generate a public key and a private key with cryptography library
+        self.private_key = rsa.generate_private_key(public_exponent=65537,key_size=2048,)
+        self.public_key = self.private_key.public_key()
+        self.balance = 0 #amount of money in the wallet
 
 
 class Block:

@@ -1,4 +1,5 @@
 import streamlit as st
+from Transactions import Transaction
 
 #create a streamlit app for the blockchain
 #first the user will be able to make transactions
@@ -13,13 +14,13 @@ st.title("Blockchain Interface")
 left_column, right_column = st.columns(2)
 left_column.write("I wish to make a transaction")
 
-sender_address = st.text_input('Enter your address:')
-st.write('Your address is:', sender_address)
+sender_pk = st.text_input('Enter your public key:')
+st.write('Your address is:', sender_pk)
 
-receiver_address = st.text_input("Enter the receiver's address")
-st.write("The receiver's address is:", receiver_address)
+receiver_pk = st.text_input("Enter the receiver's public key")
+st.write("The receiver's address is:", receiver_pk)
 
-amout = st.number_input('Insert the amount of the transaction')
-st.write('Amount: ', amout)
+amount = st.number_input('Insert the amount of the transaction')
+st.write('Amount: ', amount)
 
-
+transaction  =Transaction(sender_pk, receiver_pk, amount)

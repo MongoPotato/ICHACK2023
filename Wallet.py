@@ -1,10 +1,8 @@
 class Wallet:
-    def __init__(self):
-        self.id = "" #the id is the private key
-        self.public_key = "" #the public key is the id of the wallet to be broadcasted
-        self.token = "" 
-        self.address = "" #hash of the token API 
-        self.amount = 0
+    def __init__(self, private_key, public_key):
+        self.private_key = private_key #the id is the private key
+        self.public_key = public_key #the public key is the id of the wallet to be broadcasted
+        self.balance = 0
 
     
     def getPublicKey(self):

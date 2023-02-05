@@ -73,3 +73,13 @@ class SportNode(Node):
     def pooling_check_new_node(self):
         return self.sportblockchain.validate_block()
     
+    def getBlockChain(self):
+        return self.sportblockchain.get_Blockchain()
+    
+    def getAmountInWallet(self, pubkey):
+        return self.sportblockchain.get_sum_in_wallet(pubkey)
+
+    def getTransactionInBlock(self, id):
+        return self.sportblockchain.get_Transactions(id)
+    
+   

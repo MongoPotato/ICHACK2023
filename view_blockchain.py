@@ -12,7 +12,6 @@ block1 = Block(1, [trans0, trans1], "miner1")
 blocks = [block0, block1] #list of blocks
 
 
-
 #creates st.buttons one above each other
 for i in range(len(blocks)):
 

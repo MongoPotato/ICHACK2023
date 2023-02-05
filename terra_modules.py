@@ -34,6 +34,9 @@ def request_session_google(public_key):
     params = {
         "resource": "GOOGLE",
         "reference_id": public_key}
+
+
+
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
@@ -45,7 +48,7 @@ def request_session_google(public_key):
     if response.status_code == 200 or response.status_code == 201 :
         response_dict = response.json()
         #print(response_dict)
-        return response            
+        return response_dict          
     else:
         print("Request failed with status code:", response.status_code, response.json())
         return response
@@ -158,7 +161,8 @@ for user in response["users"] :
 """
 
 #clear_users()
-#request_session_google('Hector')
+#r = request_session_google('Hector')
+#print(r)
 #clear_users()
 #print_users()
 #print(get_steps("ddede8b9-85f7-4a0c-833b-5f7b9f0a5328"))

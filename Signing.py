@@ -6,8 +6,6 @@ class Signing:
     def __init__(self, public_key, private_key):
         self.public_key = public_key
         self.private_key = private_key
-        self.signature = self.sign()
-        self.verify = self.verify()
 
     def createdata(self, transaction):
         data = {"sender": transaction.getSender(), "receiver": transaction.getReceiver(), "amount": transaction.getAmount()}

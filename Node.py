@@ -2,11 +2,15 @@ from p2pnetwork.node import Node
 from time import time
 from hashlib import sha256
 from utils import verify
+from sportblockchain import SportBlockchain
 
-class  SportNode(Node):
+
+class SportNode(Node):
 
     def __init__(self, host, port, id=None, callback=None, max_connections=0):
         super(Node, self).__init__(host, port, id, callback, max_connections)
+        
+        self.sportblockchain = SportBlockchain()
 
     def create_new_connection(self, connection, id, host, port):
         return Node(self, connection, id, host, port)
@@ -16,7 +20,7 @@ class  SportNode(Node):
         if self.check_message(data):
             if("_type" in data):
                 if (data["_type"] == "transaction"):
-                    
+                    self.sportblockchain.add_transaction_to_pool(data)
                 else:
                     self.debug.print("message type unknown ", data)
         

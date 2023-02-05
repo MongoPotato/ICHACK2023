@@ -3,6 +3,7 @@ import sqlite3
 from p2pnetwork.node import Node
 from datetime import datetime, timezone 
 from Transactions import Transaction
+import time
 #TODO finish off win condition 
 class SportBlockchain:
 
@@ -221,7 +222,7 @@ class SportBlockchain:
 
     def validate_block(self):
         last_block = self.get_last_block()
-        timestamp = datetime.now(timezone.etc) 
+        timestamp = int(time.time())
         
         if(timestamp == last_block.get('timestamp') * 10 * 60):
             #TODO ADD CHECK WINNER HERE

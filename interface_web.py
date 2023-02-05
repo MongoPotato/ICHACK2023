@@ -5,7 +5,7 @@ from Wallet import Wallet
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from BlockNode import SportNode
-from datetime import date
+import time
 from Signing import Signing
 from hashlib import sha256
 import json
@@ -95,7 +95,7 @@ amount = st.number_input('Insert the amount of the transaction')
 st.write('Amount: ', amount)
 
 if st.button("Validate the transaction !"):
-    transaction = Transaction(sender_pk, receiver_pk, amount, datetime.now(timezone.utc))
+    transaction = Transaction(sender_pk, receiver_pk, amount, int(time.time()))
     st.write("Cheers, transaction validated!")
 
 

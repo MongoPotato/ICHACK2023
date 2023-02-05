@@ -85,6 +85,7 @@ class SportBlockchain:
         data = c.fetchone()
         c.execute("INSERT INTO transaction_list(id_blockchain, sender, receiver, amount, date) VALUES (?, ?, ?, ?, ?)",
             (
+             data,
              "none",
              transaction.getReceiver(),
              transaction.getAmount(),

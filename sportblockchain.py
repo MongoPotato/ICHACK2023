@@ -1,6 +1,6 @@
 import sqlite3
 
-from p2pnetwork import Node
+from p2pnetwork.node import Node
 from datetime import datetime, timezone 
 import Transactions
 
@@ -45,7 +45,7 @@ class SportBlockchain:
             
 
         # hash of prev is good, check token for the person with most steps and check timestamp 
-        pass
+            pass
     
     def add_block(self, block):
         # method add block

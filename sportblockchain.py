@@ -2,7 +2,7 @@ import sqlite3
 
 from p2pnetwork.node import Node
 from datetime import datetime, timezone 
-import Transactions
+from Transactions import Transaction
 #TODO finish off win condition 
 #TODO how to create a block each 10 min
 class SportBlockchain:
@@ -165,7 +165,7 @@ class SportBlockchain:
                 return amount
             
     def get_sum_in_wallet(self, send_adr):
-        transaction = Transactions(send_adr, None, None, None)
+        transaction = Transaction(send_adr, None, None, None)
         
         amount = self.check_transaction(transaction)
         if(amount == -1):
@@ -211,7 +211,7 @@ class SportBlockchain:
             data = "WINNER API CALL"
             self.add_block(data)
             amount = 5
-            transaction = Transactions(None, data["miner"], amount, timestamp) 
+            transaction = Transaction(None, data["miner"], amount, timestamp) 
             self.add_miner_transaction(transaction)
         pass
 

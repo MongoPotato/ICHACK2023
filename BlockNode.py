@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from hashlib import sha256
 from utils import verify
 from sportblockchain import SportBlockchain
-import Transactions
+from Transactions import Transaction
 
 
 class SportNode(Node):
@@ -22,7 +22,7 @@ class SportNode(Node):
             if("_type" in data):
                 if (data["_type"] == "transaction"):
 
-                    trans = Transactions(data["_sender"], data["_receiver"], data["_amount"], data["_date"])
+                    trans = Transaction(data["_sender"], data["_receiver"], data["_amount"], data["_date"])
                     self.sportblockchain.add_transaction_to_pool(trans)
                 else:
                     self.debug.print("message type unknown ", data)

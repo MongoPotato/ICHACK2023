@@ -231,16 +231,16 @@ class SportBlockchain:
         timestamp = int(time.time())
         print(last_block)
         
-        if(last_block is not None and timestamp == last_block.get('timestamp') * 10 * 60):
+        if(timestamp >= last_block.get('timestamp') + 10 * 60):
             users = get_users()
             max_steps = 0
             argmaxsteps = None
             for user_id, reference_id in users :
-                s = get_steps(user_id,(last_block.get('timestamp')-1) * 10 * 60 , last_block.get('timestamp')*10 *60)
+                s = get_steps(user_id,last_block.get('timestamp'), last_block.get('timestamp') + 10 *60)
                 if s > max_steps :
                     max_steps = s
                     argmaxsteps = reference_id
-            data = "WINNER API CALL"
+            data = {"timestamp" : timestamp , "miner" : argmaxsteps, "prevblock" : last_block.get('prevblock')}
             self.add_block(data)
             amount = 5
             transaction = Transaction(None, data["miner"], amount, timestamp) 

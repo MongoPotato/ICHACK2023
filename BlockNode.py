@@ -70,5 +70,6 @@ class SportNode(Node):
     def send_message(self, message):
         self.send_to_nodes(self.create_message({"_type": "transaction", "message": message}))
 
-
+    def pooling_check_new_node(self):
+        return self.sportblockchain.validate_block()
     

@@ -3,7 +3,8 @@ import sqlite3
 from p2pnetwork.node import Node
 from datetime import datetime, timezone 
 import Transactions
-
+#TODO finish off win condition 
+#TODO how to create a block each 10 min
 class SportBlockchain:
 
     def __init__(self):
@@ -131,47 +132,62 @@ class SportBlockchain:
         return None
     
     def check_transaction(self, transaction):
-        #check if transaction is valid and wallet is valid
         c = self.db.cursor()
-        sender = transaction.getSender()
-        c.execute("SELECT * FROM sportblockchain WHERE miner = ?", sender)
-        data = c.fetchone()
-        if(data is not None): #Si le mineur est bien présent sur la bc, on 
-                # find sum on blockchain from prev transaction to check if balance is correct
-            pass
-        else:
-            c.execute("SELECT sender, receiver FROM transaction_list")
-            data = c.fetchall()
-            # data check if sender or receiver from blockchain is present in transaction
-            # if not reject transaction
-
-        c.execute("SELECT transaction_block FROM transactionpoolblock")
+        
+        c.execute("SELECT sender, receiver, date FROM transaction_list ORDER BY date DESC")
+            
         data = c.fetchall()
+        tempdatercv = None
+        tempdatesend = None
+        for i in data:
+            if i[0] == transaction.getReceiver():
+                tempdatercv = i[2]
+                break
+        for j in data:
+            if j[0] == transaction.getSender():
+                tempdatesend = j[1]
+                break
+        if (tempdatesend is not None and tempdatercv is not None): 
 
-        pass
-
+            if(tempdatercv > tempdatesend):
+                c.execute("SELECT amount FROM transaction_list WHERE tempdatercv = ?", tempdatercv)
+                amount = c.fetchone()
+                return amount
+            elif(tempdatesend > tempdatercv):
+                c.execute("SELECT amount FROM transaction_list WHERE tempdatercv = ?", tempdatercv)
+                amountrcv = c.fetchone()
+                c.execute("SELECT amount FROM transaction_list WHERE tempdatercv = ?", tempdatesend)
+                amountsnd = c.fetchone()
+                amount = amountrcv - amountsnd
+                return amount
+            else:
+                amount = -1
+                return amount
+            
+    def get_sum_in_wallet(self, send_adr):
+        transaction = Transactions(send_adr, None, None, None)
+        
+        amount = self.check_transaction(transaction)
+        if(amount == -1):
+            return 0
+        return amount
 
     def add_transaction_to_pool(self, transaction):
+        
+        data = self.check_transaction(transaction)
 
-        if(self.check_transaction(transaction)):
+        if(data > -1):
             c = self.db.cursor()
             timestamp = datetime.now(timezone.etc) # timing attack can post 2 transaction at the same time so wrong id
             type = 'table'
             c.execute("INSERT INTO transaction_list (sender, receiver, amount, date VALUES ?, ?, ?, ?)",
-                (transaction.getSender(), 
+                (
+                None,
+                transaction.getSender(), 
                 transaction.getReceiver(),
                 transaction.getAmount(),
                 timestamp
                 ))
-            self.db.commit()
-            c = self.db.cursor()
-            c.execute("SELECT id FROM transaction_list ORDER BY id DESC LIMIT 1")
-            transaction_id = c.fetchone()
-            c.execute("INSERT INTO transactionpoolblock (timestamp, transaction_id, type VALUES ?, ?, ?)",
-                (timestamp,
-                  transaction_id,
-                  type   
-                  ))
             self.db.commit()
             return True
         return False
@@ -186,11 +202,13 @@ class SportBlockchain:
         
         return None
 
-    def validate_block(self, data, type):
+    def validate_block(self):
         last_block = self.get_last_block()
         timestamp = datetime.now(timezone.etc) 
         
         if(timestamp == last_block.get('timestamp') * 10 * 60):
+            #TODO ADD CHECK WINNER HERE
+            data = "WINNER API CALL"
             self.add_block(data)
             amount = 5
             transaction = Transactions(None, data["miner"], amount, timestamp) 

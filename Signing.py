@@ -1,6 +1,6 @@
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-#TODO redo
+import cryptography.hazmat.primitives.serialization as sz
 
 class Signing:
     def __init__(self, public_key, private_key):
@@ -12,11 +12,13 @@ class Signing:
         return data
 
     def signs(self, transaction):
-        return self.private_key.sign(self.createdata(transaction), padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH), hashes.SHA256())
+        privkey = sz.load_pem_private_key(self.private_key,password = None)
+        return privkey.sign(self.createdata(transaction), padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH), hashes.SHA256())
 
     def verify(self, transaction, signature):
         try:
-            self.public_key.verify(signature, self.createdata(transaction), padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH), hashes.SHA256())
+            pubkey = sz.load_pem_public_key(self.public_key)
+            pubkey.verify(signature, self.createdata(transaction), padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH), hashes.SHA256())
             return True
         except:
             return False

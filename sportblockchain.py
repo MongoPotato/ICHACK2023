@@ -3,12 +3,9 @@ import sqlite3
 from p2pnetwork.node import Node
 from datetime import datetime, timezone 
 from Transactions import Transaction
-<<<<<<< HEAD
 import time
-=======
 from terra_modules import *
 
->>>>>>> 172ae9b06d01dceabbdb8eeee8747cd16c497fc9
 #TODO finish off win condition 
 
 

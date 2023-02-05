@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from Wallet import Wallet
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
-from Node import SportNode
+from BlockNode import SportNode
 import time
 from Signing import Signing
 from hashlib import sha256

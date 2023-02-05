@@ -128,3 +128,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .dist/
+.swp
+sportblockchain.db
+public.pub
+private.txt

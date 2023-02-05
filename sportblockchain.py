@@ -2,7 +2,7 @@ import sqlite3
 
 from p2pnetwork import Node
 from datetime import datetime, timezone 
-
+import Transactions
 
 class SportBlockchain:
 
@@ -12,27 +12,38 @@ class SportBlockchain:
 
     def init_database(self):
         c = self.db.cursor()
-        c.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='sportblockchain")
+        c.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='sportblockchain'")
+        
         if(c.fetchone()[0] != 1):
             c.execute("""CREATE TABLE sportblockchain(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp TEXT,
-                transactions TEXT,
-                type TEXT,
+                id INTEGER PRIMARY KEY,
+                date TEXT,
                 miner TEXT,
-                prevblock TEXT,
+                prevblock TEXT
+                )
             """)
+
+            c.execute("""CREATE TABLE transaction_list(
+                id INTEGER PRIMARY KEY,
+                id_blockchain INTEGER REFERENCES sportblockchain(id),
+                sender TEXT,
+                receiver TEXT,
+                amount INTEGER,
+                date TEXT,
+                signature TEXT
+                )""")
             
-            c.execute("""CREATE TABLE transactionpoolblock(
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    timestamp TEXT,
-                    transaction TEXT,
-                    type TEXT,
-            """)
+
              # think about timestamp genesis block
 
 
-    def check_block(block):
+    def check_block(self, block):
+        c = self.db.cursor()
+        c.execute("SELECT id FROM sportblockchain ORDER BY id DESC LIMIT 1")
+        data = c.fetchone()
+        if(data == block["prevblock"]):
+            
+
         # hash of prev is good, check token for the person with most steps and check timestamp 
         pass
     
@@ -41,21 +52,21 @@ class SportBlockchain:
 
         if(self.check_block(block)):
             c = self.db.cursor()
-            c.execute("INSERT INTO sportblockchain (timestamp, transactions, type, miner, prevblock) VALUES ?, ?, ?, ?, ?)",
+            c.execute("INSERT INTO sportblockchain (timestamp, miner, prevblock) VALUES (?, ?, ?)",
                 ( block["timestamp"],
-                  block["transactions"], # json.dumps(block["data"], sort_keys=True)
-                  block["type"],
                   block["miner"],
-                  block["prevblock"],   
+                  block["prevblock"]  
                   ))
             self.db.commit()
             return True    
         return False
     
     def get_record_blockchain(self, data):
-        header = ("id", "timestamp", "transactions", "type", "miner", "prevblock")
+        #Avoir le record du bloc avec data
+        header = ("id", "timestamp", "miner", "prevblock")
 
-        if (len(data) != header(header)):
+        if (len(data) != len(header)):
+            #Si la data est vide : il ne sert à rien de retourner le record
             return None
         
         record = {}
@@ -65,6 +76,7 @@ class SportBlockchain:
         return record
 
     def get_block_by_id(self, id):
+        #Avoir les informations du block d'id id
         c = self.db.cursor()
         c.execute("SELECT * FROM sportblockchain WHERE id = ? ", id)
 
@@ -84,9 +96,25 @@ class SportBlockchain:
 
         return None
     
-    def check_transaction(self):
-            #check if transaction is valid and wallet is valid
-            #
+    def check_transaction(self, transaction):
+        #check if transaction is valid and wallet is valid
+        c = self.db.cursor()
+    
+        sender = transaction.getSender()
+        c.execute("SELECT * FROM sportblockchain WHERE miner = ?", sender)
+        data = c.fetchone()
+        if(data is not None): #Si le mineur est bien présent sur la bc, on 
+                # find sum on blockchain from prev transaction to check if balance is correct
+            pass
+        else:
+            c.execute("SELECT sender, receiver FROM transaction_list")
+            data = c.fetchall()
+            # data check if sender or receiver from blockchain is present in transaction
+            # if not reject transaction
+
+        c.execute("SELECT transaction_block FROM transactionpoolblock")
+        data = c.fetchall()
+
         pass
 
 
@@ -94,12 +122,22 @@ class SportBlockchain:
 
         if(self.check_transaction(transaction)):
             c = self.db.cursor()
-            timestamp = datetime.now(timezone.etc)
+            timestamp = datetime.now(timezone.etc) # timing attack can post 2 transaction at the same time so wrong id
             type = 'table'
-            c.execute("INSERT INTO transactionpoolblock (timestamp, transaction, type VALUES ?, ?, ?)",
+            c.execute("INSERT INTO transaction_list (sender, receiver, amount, date VALUES ?, ?, ?, ?)",
+                (transaction.getSender(), 
+                transaction.getReceiver(),
+                transaction.getAmount(),
+                timestamp
+                ))
+            self.db.commit()
+            c = self.db.cursor()
+            c.execute("SELECT id FROM transaction_list ORDER BY id DESC LIMIT 1")
+            transaction_id = c.fetchone()
+            c.execute("INSERT INTO transactionpoolblock (timestamp, transaction_id, type VALUES ?, ?, ?)",
                 (timestamp,
-                  transaction["transaction"], 
-                  type,   
+                  transaction_id,
+                  type   
                   ))
             self.db.commit()
             return True

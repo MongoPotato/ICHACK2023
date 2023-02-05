@@ -1,5 +1,5 @@
 from p2pnetwork.node import Node
-from time import time
+from datetime import datetime, timezone 
 from hashlib import sha256
 from utils import verify
 from sportblockchain import SportBlockchain
@@ -23,7 +23,9 @@ class SportNode(Node):
                     self.sportblockchain.add_transaction_to_pool(data)
                 else:
                     self.debug.print("message type unknown ", data)
-        
+
+    def gohash(self, data):
+        return sha256(data).hexdigest()   
 
     def check_message(self, data):
         self.debug_print("Incomming message")
@@ -36,10 +38,11 @@ class SportNode(Node):
         signature = data['_signature']
         data_hash = data['_hash']
         transaction = {"sender": sender, "receiver": receiver, "amount": amount}
+        del data['_hash']
         
         checksig = verify(sender, signature, transaction)
 
-        checkhash = (hash(data) == data_hash)
+        checkhash = (self.gohash(data) == data_hash)
 
         newdata = {}
         newdata['_signature'] = signature
@@ -50,14 +53,11 @@ class SportNode(Node):
 
         return checksig and checkhash
 
-    def hash(data):
-        return sha256(data).hexdigest()
-
     def create_message(self, data):
 
         try:
-            data["_timestamp"] = time.time()
-            data["_hash"] = hash(data)
+            data["_timestamp"] = datetime.now(timezone.etc) 
+            data["_hash"] = gohash(data)
         
         except Exception as e:
             self.debug_print("Failed to create message", e.__cause__())

@@ -1,5 +1,4 @@
 import Wallet
-from Signing import Signing
 
 
 class Transaction:
@@ -21,4 +20,7 @@ class Transaction:
 
     def payToWallet(self):
         pass
+    
+    def date(self):
+        return self.date
 

@@ -1,13 +1,19 @@
 import streamlit as st
 from Transactions import Transaction
-from datetime import date
+from datetime import datetime, timezone 
 from Wallet import Wallet
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
+from Node import SportNode
+import time
+from Signing import Signing
+from hashlib import sha256
 
 
 filename = "private.txt"
 filenamepub = "public.pub"
+ipnode = ""
+iphost = ""
 
 #create a streamlit app for the blockchain
 #first the user will be able to make transactions
@@ -29,6 +35,10 @@ pem = private_key.private_bytes(encoding=serialization.Encoding.PEM,
     )
 with open(filename, 'wb') as pem_out:
     pem_out.write(pem)
+
+
+def gohash(data):
+    return sha256(data).hexdigest()
 
 if st.button("Let's go for it!"):
     public_key = private_key.public_key()
@@ -63,6 +73,25 @@ amount = st.number_input('Insert the amount of the transaction')
 st.write('Amount: ', amount)
 
 if st.button("Validate the transaction !"):
-    transaction = Transaction(sender_pk, receiver_pk, amount, date.today())
+    transaction = Transaction(sender_pk, receiver_pk, amount, datetime.now(timezone.etc))
     st.write("Cheers, transaction validated!")
 
+
+node = SportNode(ipnode, 10002)
+node.start()
+node.connect_with_node(iphost, 10001)
+time.sleep(2)
+
+signature = Signing.sign(transaction)
+
+message = {}
+message['_transaction'] = "transaction"
+message['_sender'] = transaction.getSender()
+message['_receiver'] = transaction.getReceiver()
+message['_amount'] = transaction.getAmount()
+message['_date'] = transaction.getDate()
+message['_signature'] = signature
+message['_hash'] = gohash(message)
+
+node.send_message(message)
+node.stop()

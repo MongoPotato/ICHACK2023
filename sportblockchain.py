@@ -46,7 +46,13 @@ class SportBlockchain:
              # think about timestamp genesis block
 
 
-    def check_block(block):
+    def check_block(self, block):
+        c = self.db.cursor()
+        c.execute("SELECT id FROM sportblockchain ORDER BY id DESC LIMIT 1")
+        data = c.fetchone()
+        if(data == block["prevblock"]):
+            
+
         # hash of prev is good, check token for the person with most steps and check timestamp 
         pass
     

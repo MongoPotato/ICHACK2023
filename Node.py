@@ -14,8 +14,7 @@ class  SportNode(Node):
         if self.check_message(data):
             if("_type" in data):
                 if (data["_type"] == "transaction"):
-                    
-                    #check transaction 
+                    # add transaction
                     pass
                 else:
                     self.debug.print("message type unknown ", data)
@@ -45,3 +44,12 @@ class  SportNode(Node):
 
         #TODO add return
         pass
+    
+
+    def create_message(self, data):
+        try:
+            data
+    
+    def send_message(self, message):
+        self.send_to_nodes(self.create_message({"_type": "message", "message": message }))
+    

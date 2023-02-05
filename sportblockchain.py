@@ -3,7 +3,11 @@ import sqlite3
 from p2pnetwork.node import Node
 from datetime import datetime, timezone 
 from Transactions import Transaction
+from terra_modules import *
+
 #TODO finish off win condition 
+
+
 class SportBlockchain:
 
     def __init__(self):
@@ -224,7 +228,14 @@ class SportBlockchain:
         timestamp = datetime.now(timezone.etc) 
         
         if(timestamp == last_block.get('timestamp') * 10 * 60):
-            #TODO ADD CHECK WINNER HERE
+            users = get_users()
+            max_steps = 0
+            argmaxsteps = None
+            for user_id, reference_id in users :
+                s = get_steps(user_id,(last_block.get('timestamp')-1) * 10 * 60 , last_block.get('timestamp')*10 *60)
+                if s > max_steps :
+                    max_steps = s
+                    argmaxsteps = reference_id
             data = "WINNER API CALL"
             self.add_block(data)
             amount = 5

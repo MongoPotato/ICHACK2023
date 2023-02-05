@@ -103,6 +103,23 @@ def print_users() :
         print(user)
 
 
+def get_users() :
+
+    headers = {
+        'accept' : 'applocation/json',
+        'dev-id' : dev_id,
+        'X-API-Key' : api_key
+    }
+
+
+    response = requests.get("https://api.tryterra.co/v2/subscriptions",headers=headers,json=[]).json()
+    res = []
+    for user in response["users"] :
+        res.append(user['user_id'],user['reference_id'])
+
+    return res
+
+
 
 #https://widget.tryterra.co/session/0b625869-adfa-4dcc-987b-9ffc868cce26
 
@@ -136,8 +153,8 @@ def get_activity(user_id,start_date='2023-02-04',end_date='2023-02-04'):
         return None
 
 
-def get_steps(user_id):
-    resp = get_activity(user_id)
+def get_steps(user_id,start_date='2023-02-04',end_date='2023-02-04'):
+    resp = get_activity(user_id,start_date=start_date,end_date=end_date)
     return resp["data"][0]["distance_data"]["steps"]
 
 
@@ -164,5 +181,5 @@ for user in response["users"] :
 #r = request_session_google('Hector')
 #print(r)
 #clear_users()
-#print_users()
+print_users()
 #print(get_steps("ddede8b9-85f7-4a0c-833b-5f7b9f0a5328"))

@@ -7,15 +7,18 @@ signing_secret = "c1dfefa32b646695bf6980ddb9bca043a20b1a2e40c303a2"
 
 
 
-def request_session():
+def request_session(public_key):
 
+    params = {
+        'reference_id' : public_key
+    }
     headers = {
         
         'dev-id' : dev_id,
         'X-API-Key' : api_key
     }
 
-    response = requests.post('https://api.tryterra.co/v2/auth/generateWidgetSession',headers=headers,json=[])
+    response = requests.post('https://api.tryterra.co/v2/auth/generateWidgetSession',headers=headers,params=params,json=[])
 
     if response.status_code == 200 or response.status_code == 201 :
         response_dict = response.json()
@@ -132,8 +135,8 @@ for user in response["users"] :
     print(dico)
 """
 
-
-#request_session()
+clear_users()
+request_session('Hector')
 #clear_users()
 #print_users()
-print(get_steps("ddede8b9-85f7-4a0c-833b-5f7b9f0a5328"))
+#print(get_steps("ddede8b9-85f7-4a0c-833b-5f7b9f0a5328"))

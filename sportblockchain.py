@@ -1,6 +1,6 @@
 import sqlite3
 
-from p2pnetwork import Node
+from p2pnetwork.node import Node
 from datetime import datetime, timezone 
 import Transactions
 

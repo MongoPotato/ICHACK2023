@@ -10,6 +10,7 @@ node.start()
 try:
     while True:
         time.sleep(2)
+        node.pooling_check_new_node()
 except KeyboardInterrupt:
     node.stop()
 

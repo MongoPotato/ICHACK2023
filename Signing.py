@@ -8,7 +8,14 @@ class Signing:
         self.private_key = private_key
         self.transaction = transaction
         self.signature = self.sign()
+        self.verify = self.verify()
 
     def sign(self):
         return self.private_key.sign(self.transaction, padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH), hashes.SHA256())
 
+    def verify(self):
+        try:
+            self.public_key.verify(self.signature, self.transaction, padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH), hashes.SHA256())
+            return True
+        except:
+            return False

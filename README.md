@@ -14,7 +14,8 @@ you can run
 If you want to view the blockchain you can run
 - streamlit run view_blockchain.py
 
-
+### To submit a transaction
+python send_transaction.py 
 
 ### Requirements
 Python 3.9

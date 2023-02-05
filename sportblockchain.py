@@ -17,31 +17,22 @@ class SportBlockchain:
         if(c.fetchone()[0] != 1):
             c.execute("""CREATE TABLE sportblockchain(
                 id INTEGER PRIMARY KEY,
-                timestamp TEXT,
-                transactions TEXT,
-                type TEXT,
+                date TEXT,
                 miner TEXT,
-                prevblock TEXT,
+                prevblock TEXT
                 )
             """)
 
-            c.execute("""CREATE TABLE transaction_block(
+            c.execute("""CREATE TABLE transaction_list(
                 id INTEGER PRIMARY KEY,
+                id_blockchain INTEGER REFERENCES sportblockchain(id),
                 sender TEXT,
                 receiver TEXT,
                 amount INTEGER,
                 date TEXT,
-                type TEXT
+                signature TEXT
                 )""")
             
-            c.execute("""CREATE TABLE transactionpoolblock(
-                id INTEGER PRIMARY KEY,
-                timestamp TEXT,
-                type TEXT,
-                transaction_id INT,
-                FOREIGN KEY (transaction_id) REFERENCES transaction_block(id)
-                )
-            """)
 
              # think about timestamp genesis block
 
@@ -61,21 +52,21 @@ class SportBlockchain:
 
         if(self.check_block(block)):
             c = self.db.cursor()
-            c.execute("INSERT INTO sportblockchain (timestamp, transactions, type, miner, prevblock) VALUES (?, ?, ?, ?, ?)",
+            c.execute("INSERT INTO sportblockchain (timestamp, miner, prevblock) VALUES (?, ?, ?)",
                 ( block["timestamp"],
-                  block["transactions"], # json.dumps(block["data"], sort_keys=True)
-                  block["type"],
                   block["miner"],
-                  block["prevblock"],   
+                  block["prevblock"]  
                   ))
             self.db.commit()
             return True    
         return False
     
     def get_record_blockchain(self, data):
-        header = ("id", "timestamp", "transactions", "type", "miner", "prevblock")
+        #Avoir le record du bloc avec data
+        header = ("id", "timestamp", "miner", "prevblock")
 
-        if (len(data) != header(header)):
+        if (len(data) != len(header)):
+            #Si la data est vide : il ne sert à rien de retourner le record
             return None
         
         record = {}
@@ -85,6 +76,7 @@ class SportBlockchain:
         return record
 
     def get_block_by_id(self, id):
+        #Avoir les informations du block d'id id
         c = self.db.cursor()
         c.execute("SELECT * FROM sportblockchain WHERE id = ? ", id)
 
@@ -115,7 +107,7 @@ class SportBlockchain:
                 # find sum on blockchain from prev transaction to check if balance is correct
             pass
         else:
-            c.execute("SELECT sender, receiver FROM transaction_block")
+            c.execute("SELECT sender, receiver FROM transaction_list")
             data = c.fetchall()
             # data check if sender or receiver from blockchain is present in transaction
             # if not reject transaction
@@ -132,7 +124,7 @@ class SportBlockchain:
             c = self.db.cursor()
             timestamp = datetime.now(timezone.etc) # timing attack can post 2 transaction at the same time so wrong id
             type = 'table'
-            c.execute("INSERT INTO transaction (sender, receiver, amount, date VALUES ?, ?, ?, ?)",
+            c.execute("INSERT INTO transaction_list (sender, receiver, amount, date VALUES ?, ?, ?, ?)",
                 (transaction.getSender(), 
                 transaction.getReceiver(),
                 transaction.getAmount(),
@@ -140,7 +132,7 @@ class SportBlockchain:
                 ))
             self.db.commit()
             c = self.db.cursor()
-            c.execute("SELECT id FROM transaction ORDER BY id DESC LIMIT 1")
+            c.execute("SELECT id FROM transaction_list ORDER BY id DESC LIMIT 1")
             transaction_id = c.fetchone()
             c.execute("INSERT INTO transactionpoolblock (timestamp, transaction_id, type VALUES ?, ?, ?)",
                 (timestamp,

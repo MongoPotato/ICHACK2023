@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from hashlib import sha256
 from utils import verify
 from sportblockchain import SportBlockchain
+import Transactions
 
 
 class SportNode(Node):
@@ -20,7 +21,9 @@ class SportNode(Node):
         if self.check_message(data):
             if("_type" in data):
                 if (data["_type"] == "transaction"):
-                    self.sportblockchain.add_transaction_to_pool(data)
+
+                    trans = Transactions(data["_sender"], data["_receiver"], data["_amount"], data["_date"])
+                    self.sportblockchain.add_transaction_to_pool(trans)
                 else:
                     self.debug.print("message type unknown ", data)
 
@@ -57,7 +60,7 @@ class SportNode(Node):
 
         try:
             data["_timestamp"] = datetime.now(timezone.etc) 
-            data["_hash"] = gohash(data)
+            data["_hash"] = self.gohash(data)
         
         except Exception as e:
             self.debug_print("Failed to create message", e.__cause__())
@@ -67,5 +70,6 @@ class SportNode(Node):
     def send_message(self, message):
         self.send_to_nodes(self.create_message({"_type": "transaction", "message": message}))
 
-
+    def pooling_check_new_node(self):
+        return self.sportblockchain.validate_block()
     

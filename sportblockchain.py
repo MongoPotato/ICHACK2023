@@ -4,7 +4,6 @@ from p2pnetwork.node import Node
 from datetime import datetime, timezone 
 from Transactions import Transaction
 #TODO finish off win condition 
-#TODO how to create a block each 10 min
 class SportBlockchain:
 
     def __init__(self):

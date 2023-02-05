@@ -10,9 +10,11 @@ class SportBlockchain:
     def __init__(self):
         super(SportBlockchain, self).__init__()
         self.db = sqlite3.connect('sportblockchain.db')
+        self.init_database()
 
     def init_database(self):
         c = self.db.cursor()
+        print("hello")
         c.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='sportblockchain'")
         
         if(c.fetchone()[0] != 1):
@@ -31,8 +33,7 @@ class SportBlockchain:
                 receiver TEXT,
                 amount INTEGER,
                 date TEXT,
-                type TEXT,
-                )""")
+                type TEXT)""")
             
 
              # think about timestamp genesis block
@@ -221,10 +222,12 @@ class SportBlockchain:
         return None
 
     def validate_block(self):
+
         last_block = self.get_last_block()
         timestamp = int(time.time())
+        print(last_block)
         
-        if(timestamp == last_block.get('timestamp') * 10 * 60):
+        if(last_block is not None and timestamp == last_block.get('timestamp') * 10 * 60):
             #TODO ADD CHECK WINNER HERE
             data = "WINNER API CALL"
             self.add_block(data)

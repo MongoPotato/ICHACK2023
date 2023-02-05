@@ -20,7 +20,7 @@ class SportBlockchain:
                 date TEXT,
                 miner TEXT,
                 prevblock TEXT
-                )
+                type TEXT)
             """)
 
             c.execute("""CREATE TABLE transaction_list(
@@ -30,6 +30,7 @@ class SportBlockchain:
                 receiver TEXT,
                 amount INTEGER,
                 date TEXT,
+                type TEXT,
                 )""")
             
 
@@ -55,20 +56,22 @@ class SportBlockchain:
         s = self.check_block(block) 
         if(s == "op1"):
             c = self.db.cursor()
-            c.execute("INSERT INTO sportblockchain (timestamp, miner, prevblock) VALUES (?, ?, ?)",
+            c.execute("INSERT INTO sportblockchain (timestamp, miner, prevblock) VALUES (?, ?, ?, ?)",
                 (block["timestamp"],
                   block["miner"],
-                  block["prevblock"]  
+                  block["prevblock"],
+                  'table'
                   ))
 
             self.db.commit()
             return True
         elif(s == "op2"):
             c = self.db.cursor()
-            c.execute("INSERT INTO sportblockchain (timestamp, miner, prevblock) VALUES (?, ?, ?)",
+            c.execute("INSERT INTO sportblockchain (timestamp, miner, prevblock) VALUES (?, ?, ?, ?)",
                 (block["timestamp"],
                   block["miner"],
-                  0
+                  0,
+                  'table'
                   ))
 
             self.db.commit()
@@ -83,13 +86,14 @@ class SportBlockchain:
         c = self.db.cursor()
         c.execute("SELECT id FROM sportblockchain ORDER BY id DESC LIMIT 1")
         data = c.fetchone()
-        c.execute("INSERT INTO transaction_list(id_blockchain, sender, receiver, amount, date) VALUES (?, ?, ?, ?, ?)",
+        c.execute("INSERT INTO transaction_list(id_blockchain, sender, receiver, amount, date, type) VALUES (?, ?, ?, ?, ?, ?)",
             (
              data,
              "none",
              transaction.getReceiver(),
              transaction.getAmount(),
-             transaction.getDate()
+             transaction.getDate(),
+            'table',
             ))
         self.db.commit()
 
@@ -130,6 +134,20 @@ class SportBlockchain:
 
         return None
     
+    def get_Blockchain(self):
+        c = self.db.cursor()
+
+        c.execute("SELECT id, date, miner, prevblock FROM sportblockchain ORDER BY DESC")
+        data = c.fetchall()
+        return data
+
+    def get_Transactions(self, block_id):
+        c = self.db.cursor()
+
+        c.execute("SELECT id, id_blockchain, sender, receiver, amount, date FROM transaction_list WHERE id_blockchain = ?", block_id)
+        data = c.fetchall()
+        return data
+
     def check_transaction(self, transaction):
         c = self.db.cursor()
         
@@ -178,14 +196,14 @@ class SportBlockchain:
         if(data > -1):
             c = self.db.cursor()
             timestamp = datetime.now(timezone.etc) # timing attack can post 2 transaction at the same time so wrong id
-            type = 'table'
             c.execute("INSERT INTO transaction_list (sender, receiver, amount, date VALUES ?, ?, ?, ?)",
                 (
                 None,
                 transaction.getSender(), 
                 transaction.getReceiver(),
                 transaction.getAmount(),
-                timestamp
+                timestamp,
+                'table',
                 ))
             self.db.commit()
             return True
@@ -212,6 +230,6 @@ class SportBlockchain:
             amount = 5
             transaction = Transaction(None, data["miner"], amount, timestamp) 
             self.add_miner_transaction(transaction)
-        pass
+        
 
     

@@ -54,10 +54,10 @@ class Wallet:
 
 
 class Block:
-    def __init__(self):
-        self.previous_hash = ""
-        self.transactions = []
-        self.miner_address = "" #address of the previous miner
+    def __init__(self, previous_hash, transactions, miner_address):
+        self.previous_hash = previous_hash
+        self.transactions = transactions
+        self.miner_address = miner_address 
         self.hash = self.calculate_hash()
 
 
@@ -69,6 +69,8 @@ class Block:
         for transaction in self.transactions:
             transactions_string += str(transaction.sender) + str(transaction.receiver) + str(transaction.amount) + str(transaction.date) + str(transaction.signature)
         return sha256((str(self.previous_hash) + transactions_string + str(self.miner_address)).encode()).hexdigest()
+
+
 
 class BlockVerify:
     def __init__(self):

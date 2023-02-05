@@ -30,7 +30,6 @@ class SportBlockchain:
                 receiver TEXT,
                 amount INTEGER,
                 date TEXT,
-                signature TEXT
                 )""")
             
 
@@ -42,25 +41,59 @@ class SportBlockchain:
         c.execute("SELECT id FROM sportblockchain ORDER BY id DESC LIMIT 1")
         data = c.fetchone()
         if(data == block["prevblock"]):
-            
-
-        # hash of prev is good, check token for the person with most steps and check timestamp 
-        pass
+            s = "op1"
+            return s
+        elif(data is None):
+            s = "op2"
+            return s
+        else:
+            s = "op3"
+            return s
+ 
     
     def add_block(self, block):
-        # method add block
-
-        if(self.check_block(block)):
+        s = self.check_block(block) 
+        if(s == "op1"):
             c = self.db.cursor()
             c.execute("INSERT INTO sportblockchain (timestamp, miner, prevblock) VALUES (?, ?, ?)",
-                ( block["timestamp"],
+                (block["timestamp"],
                   block["miner"],
                   block["prevblock"]  
                   ))
+
             self.db.commit()
-            return True    
-        return False
-    
+            return True
+        elif(s == "op2"):
+            c = self.db.cursor()
+            c.execute("INSERT INTO sportblockchain (timestamp, miner, prevblock) VALUES (?, ?, ?)",
+                (block["timestamp"],
+                  block["miner"],
+                  0
+                  ))
+
+            self.db.commit()
+            return True
+        else:
+
+            return False
+
+    def add_miner_transaction(self, transaction):
+        #add miner transaction for the block and the rest of transaction in cache
+
+        c = self.db.cursor()
+        c.execute("SELECT id FROM sportblockchain ORDER BY id DESC LIMIT 1")
+        data = c.fetchone()
+        c.execute("INSERT INTO transaction_list(id_blockchain, sender, receiver, amount, date) VALUES (?, ?, ?, ?, ?)",
+            (
+             "none",
+             transaction.getReceiver(),
+             transaction.getAmount(),
+             transaction.getDate()
+            ))
+        self.db.commit()
+
+
+
     def get_record_blockchain(self, data):
         #Avoir le record du bloc avec data
         header = ("id", "timestamp", "miner", "prevblock")
@@ -99,7 +132,6 @@ class SportBlockchain:
     def check_transaction(self, transaction):
         #check if transaction is valid and wallet is valid
         c = self.db.cursor()
-    
         sender = transaction.getSender()
         c.execute("SELECT * FROM sportblockchain WHERE miner = ?", sender)
         data = c.fetchone()
@@ -158,7 +190,10 @@ class SportBlockchain:
         timestamp = datetime.now(timezone.etc) 
         
         if(timestamp == last_block.get('timestamp') * 10 * 60):
-            pass
+            self.add_block(data)
+            amount = 5
+            transaction = Transactions(None, data["miner"], amount, timestamp) 
+            self.add_miner_transaction(transaction)
         pass
 
     

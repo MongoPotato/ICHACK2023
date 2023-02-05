@@ -21,6 +21,6 @@ class Transaction:
     def payToWallet(self):
         pass
     
-    def date(self):
+    def getDate(self):
         return self.date
 

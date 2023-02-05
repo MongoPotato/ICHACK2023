@@ -130,3 +130,5 @@ dmypy.json
 .dist/
 .swp
 sportblockchain.db
+public.pub
+private.txt

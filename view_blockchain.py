@@ -7,7 +7,7 @@ blocks = [] #list of blocks
 
 
 for block in blocks:
-    #create a line corresponding to the 
+    #create a line corresponding to the block
 
 
 

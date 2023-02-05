@@ -1,9 +1,10 @@
 import sqlite3
 
-from p2pnetwork import Node
+from p2pnetwork.node import Node
 from datetime import datetime, timezone 
-import Transactions
-
+from Transactions import Transaction
+import time
+#TODO finish off win condition 
 class SportBlockchain:
 
     def __init__(self):
@@ -20,7 +21,7 @@ class SportBlockchain:
                 date TEXT,
                 miner TEXT,
                 prevblock TEXT
-                )
+                type TEXT)
             """)
 
             c.execute("""CREATE TABLE transaction_list(
@@ -30,7 +31,7 @@ class SportBlockchain:
                 receiver TEXT,
                 amount INTEGER,
                 date TEXT,
-                signature TEXT
+                type TEXT,
                 )""")
             
 
@@ -42,25 +43,63 @@ class SportBlockchain:
         c.execute("SELECT id FROM sportblockchain ORDER BY id DESC LIMIT 1")
         data = c.fetchone()
         if(data == block["prevblock"]):
-            
-
-        # hash of prev is good, check token for the person with most steps and check timestamp 
-        pass
+            s = "op1"
+            return s
+        elif(data is None):
+            s = "op2"
+            return s
+        else:
+            s = "op3"
+            return s
+ 
     
     def add_block(self, block):
-        # method add block
-
-        if(self.check_block(block)):
+        s = self.check_block(block) 
+        if(s == "op1"):
             c = self.db.cursor()
-            c.execute("INSERT INTO sportblockchain (timestamp, miner, prevblock) VALUES (?, ?, ?)",
-                ( block["timestamp"],
+            c.execute("INSERT INTO sportblockchain (timestamp, miner, prevblock) VALUES (?, ?, ?, ?)",
+                (block["timestamp"],
                   block["miner"],
-                  block["prevblock"]  
+                  block["prevblock"],
+                  'table'
                   ))
+
             self.db.commit()
-            return True    
-        return False
-    
+            return True
+        elif(s == "op2"):
+            c = self.db.cursor()
+            c.execute("INSERT INTO sportblockchain (timestamp, miner, prevblock) VALUES (?, ?, ?, ?)",
+                (block["timestamp"],
+                  block["miner"],
+                  0,
+                  'table'
+                  ))
+
+            self.db.commit()
+            return True
+        else:
+
+            return False
+
+    def add_miner_transaction(self, transaction):
+        #add miner transaction for the block and the rest of transaction in cache
+
+        c = self.db.cursor()
+        c.execute("SELECT id FROM sportblockchain ORDER BY id DESC LIMIT 1")
+        data = c.fetchone()
+        c.execute("INSERT INTO transaction_list(id_blockchain, sender, receiver, amount, date, type) VALUES (?, ?, ?, ?, ?, ?)",
+            (
+             data,
+             "none",
+             transaction.getReceiver(),
+             transaction.getAmount(),
+             transaction.getDate(),
+            'table',
+            ))
+        self.db.commit()
+
+
+
     def get_record_blockchain(self, data):
         #Avoir le record du bloc avec data
         header = ("id", "timestamp", "miner", "prevblock")
@@ -96,49 +135,77 @@ class SportBlockchain:
 
         return None
     
-    def check_transaction(self, transaction):
-        #check if transaction is valid and wallet is valid
+    def get_Blockchain(self):
         c = self.db.cursor()
-    
-        sender = transaction.getSender()
-        c.execute("SELECT * FROM sportblockchain WHERE miner = ?", sender)
-        data = c.fetchone()
-        if(data is not None): #Si le mineur est bien présent sur la bc, on 
-                # find sum on blockchain from prev transaction to check if balance is correct
-            pass
-        else:
-            c.execute("SELECT sender, receiver FROM transaction_list")
-            data = c.fetchall()
-            # data check if sender or receiver from blockchain is present in transaction
-            # if not reject transaction
 
-        c.execute("SELECT transaction_block FROM transactionpoolblock")
+        c.execute("SELECT id, date, miner, prevblock FROM sportblockchain ORDER BY DESC")
         data = c.fetchall()
+        return data
 
-        pass
+    def get_Transactions(self, block_id):
+        c = self.db.cursor()
 
+        c.execute("SELECT id, id_blockchain, sender, receiver, amount, date FROM transaction_list WHERE id_blockchain = ?", block_id)
+        data = c.fetchall()
+        return data
+
+    def check_transaction(self, transaction):
+        c = self.db.cursor()
+        
+        c.execute("SELECT sender, receiver, date FROM transaction_list ORDER BY date DESC")
+            
+        data = c.fetchall()
+        tempdatercv = None
+        tempdatesend = None
+        for i in data:
+            if i[0] == transaction.getReceiver():
+                tempdatercv = i[2]
+                break
+        for j in data:
+            if j[0] == transaction.getSender():
+                tempdatesend = j[1]
+                break
+        if (tempdatesend is not None and tempdatercv is not None): 
+
+            if(tempdatercv > tempdatesend):
+                c.execute("SELECT amount FROM transaction_list WHERE tempdatercv = ?", tempdatercv)
+                amount = c.fetchone()
+                return amount
+            elif(tempdatesend > tempdatercv):
+                c.execute("SELECT amount FROM transaction_list WHERE tempdatercv = ?", tempdatercv)
+                amountrcv = c.fetchone()
+                c.execute("SELECT amount FROM transaction_list WHERE tempdatercv = ?", tempdatesend)
+                amountsnd = c.fetchone()
+                amount = amountrcv - amountsnd
+                return amount
+            else:
+                amount = -1
+                return amount
+            
+    def get_sum_in_wallet(self, send_adr):
+        transaction = Transaction(send_adr, None, None, None)
+        
+        amount = self.check_transaction(transaction)
+        if(amount == -1):
+            return 0
+        return amount
 
     def add_transaction_to_pool(self, transaction):
+        
+        data = self.check_transaction(transaction)
 
-        if(self.check_transaction(transaction)):
+        if(data > -1):
             c = self.db.cursor()
             timestamp = datetime.now(timezone.etc) # timing attack can post 2 transaction at the same time so wrong id
-            type = 'table'
             c.execute("INSERT INTO transaction_list (sender, receiver, amount, date VALUES ?, ?, ?, ?)",
-                (transaction.getSender(), 
+                (
+                None,
+                transaction.getSender(), 
                 transaction.getReceiver(),
                 transaction.getAmount(),
-                timestamp
+                timestamp,
+                'table',
                 ))
-            self.db.commit()
-            c = self.db.cursor()
-            c.execute("SELECT id FROM transaction_list ORDER BY id DESC LIMIT 1")
-            transaction_id = c.fetchone()
-            c.execute("INSERT INTO transactionpoolblock (timestamp, transaction_id, type VALUES ?, ?, ?)",
-                (timestamp,
-                  transaction_id,
-                  type   
-                  ))
             self.db.commit()
             return True
         return False
@@ -153,12 +220,17 @@ class SportBlockchain:
         
         return None
 
-    def validate_block(self, data, type):
+    def validate_block(self):
         last_block = self.get_last_block()
-        timestamp = datetime.now(timezone.etc) 
+        timestamp = int(time.time())
         
         if(timestamp == last_block.get('timestamp') * 10 * 60):
-            pass
-        pass
+            #TODO ADD CHECK WINNER HERE
+            data = "WINNER API CALL"
+            self.add_block(data)
+            amount = 5
+            transaction = Transaction(None, data["miner"], amount, timestamp) 
+            self.add_miner_transaction(transaction)
+        
 
     

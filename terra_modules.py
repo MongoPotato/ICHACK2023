@@ -7,15 +7,18 @@ signing_secret = "c1dfefa32b646695bf6980ddb9bca043a20b1a2e40c303a2"
 
 
 
-def request_session():
+def request_session(public_key):
 
+    params = {
+        'reference_id' : public_key
+    }
     headers = {
         
         'dev-id' : dev_id,
         'X-API-Key' : api_key
     }
 
-    response = requests.post('https://api.tryterra.co/v2/auth/generateWidgetSession',headers=headers,json=[])
+    response = requests.post('https://api.tryterra.co/v2/auth/generateWidgetSession',headers=headers,params=params,json=[])
 
     if response.status_code == 200 or response.status_code == 201 :
         response_dict = response.json()
@@ -26,6 +29,26 @@ def request_session():
 #Fetch All subscriptions :
 
 
+def request_session_google(public_key):
+
+    params = {
+        "resource": "GOOGLE",
+        "reference_id": public_key}
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        'dev-id': dev_id,
+        "x-api-key": api_key
+    }
+    response = requests.post("https://api.tryterra.co/v2/auth/authenticateUser",headers=headers,params=params)
+
+    if response.status_code == 200 or response.status_code == 201 :
+        response_dict = response.json()
+        #print(response_dict)
+        return response            
+    else:
+        print("Request failed with status code:", response.status_code, response.json())
+        return response
 
 
 
@@ -115,6 +138,8 @@ def get_steps(user_id):
     return resp["data"][0]["distance_data"]["steps"]
 
 
+
+request_session_google('Hector')
 """
 
 request_session()
@@ -132,8 +157,8 @@ for user in response["users"] :
     print(dico)
 """
 
-
-#request_session()
+#clear_users()
+#request_session_google('Hector')
 #clear_users()
 #print_users()
-print(get_steps("ddede8b9-85f7-4a0c-833b-5f7b9f0a5328"))
+#print(get_steps("ddede8b9-85f7-4a0c-833b-5f7b9f0a5328"))

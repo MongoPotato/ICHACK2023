@@ -1,4 +1,4 @@
-import Wallet
+
 
 
 class Transaction:
@@ -17,10 +17,7 @@ class Transaction:
     
     def getAmount(self):
         return self.amount
-
-    def payToWallet(self):
-        pass
     
-    def date(self):
+    def getDate(self):
         return self.date
 

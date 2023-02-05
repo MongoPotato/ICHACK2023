@@ -4,10 +4,11 @@ from datetime import datetime, timezone
 from Wallet import Wallet
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
-from Node import SportNode
+from BlockNode import SportNode
 import time
 from Signing import Signing
 from hashlib import sha256
+import json
 
 
 filename = "private.txt"
@@ -56,6 +57,27 @@ if st.button("Let's go for it!"):
     st.write("Your private key has been successfully generated too!")
 
 
+
+# new_title = '<p style="font-family:sans-serif; color:deeppink; font-size: 30px;">Already created a wallet ?</p>'
+# st.markdown(new_title, unsafe_allow_html=True)
+
+# if st.button("I already have a wallet !"):
+#     #check if the 'private.txt' file exists
+#     #if it does, then the user already has a wallet
+
+#     try:
+#         with open(filename, 'rb') as key_file:
+#             private_key = serialization.load_pem_private_key(
+#                 key_file.read(),
+#                 password=None,
+#                 backend=None
+#             )
+#         st.write("Your wallest has been found !", private_key)
+        
+#     except:
+#         st.write("You don't have a wallet yet, please create one first!")
+
+
 #create a button "I wish to make a transaction"
 #when the user clicks on it, he will a new interface appears where he can enter the transaction details
 #write in red "hello"
@@ -73,25 +95,37 @@ amount = st.number_input('Insert the amount of the transaction')
 st.write('Amount: ', amount)
 
 if st.button("Validate the transaction !"):
-    transaction = Transaction(sender_pk, receiver_pk, amount, datetime.now(timezone.etc))
+    transaction = Transaction(sender_pk, receiver_pk, amount, int(time.time()))
     st.write("Cheers, transaction validated!")
 
 
-node = SportNode(ipnode, 10002)
-node.start()
-node.connect_with_node(iphost, 10001)
-time.sleep(2)
+#create a 'transaction.txt' file where the transaction will be stored
+#the transaction will be stored in a json format
 
-signature = Signing.sign(transaction)
+dico = {'sender': str(sender_pk), 'receiver': str(receiver_pk), 'amount': str(amount), 'date': str(datetime.now(timezone.utc))} #datetime.now(timezone.etc)
+# Serializing json
+json_object = json.dumps(dico, indent=4)
+ 
+# Writing to sample.json
+with open("transaction.json", "w") as outfile:
+    outfile.write(json_object)
 
-message = {}
-message['_transaction'] = "transaction"
-message['_sender'] = transaction.getSender()
-message['_receiver'] = transaction.getReceiver()
-message['_amount'] = transaction.getAmount()
-message['_date'] = transaction.getDate()
-message['_signature'] = signature
-message['_hash'] = gohash(message)
 
-node.send_message(message)
-node.stop()
+# node = SportNode(ipnode, 10002)
+# node.start()
+# node.connect_with_node(iphost, 10001)
+# time.sleep(2)
+
+# signature = Signing.sign(transaction)
+
+# message = {}
+# message['_transaction'] = "transaction"
+# message['_sender'] = transaction.getSender()
+# message['_receiver'] = transaction.getReceiver()
+# message['_amount'] = transaction.getAmount()
+# message['_date'] = transaction.getDate()
+# message['_signature'] = signature
+# message['_hash'] = gohash(message)
+
+# node.send_message(message)
+# node.stop()

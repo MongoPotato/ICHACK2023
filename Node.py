@@ -1,4 +1,7 @@
 from p2pnetwork.node import Node
+from time import time
+from hashlib import sha256
+from utils import verify
 
 class  SportNode(Node):
 
@@ -10,15 +13,13 @@ class  SportNode(Node):
 
     def node_message(self, node, data):
 
-
         if self.check_message(data):
             if("_type" in data):
                 if (data["_type"] == "transaction"):
-                    # add transaction
-                    pass
+                    
                 else:
                     self.debug.print("message type unknown ", data)
-        pass
+        
 
     def check_message(self, data):
         self.debug_print("Incomming message")
@@ -30,10 +31,11 @@ class  SportNode(Node):
         date = data['_date']
         signature = data['_signature']
         data_hash = data['_hash']
+        transaction = {"sender": sender, "receiver": receiver, "amount": amount}
+        
+        checksig = verify(sender, signature, transaction)
 
-        # check signature
-
-        # check hash
+        checkhash = (hash(data) == data_hash)
 
         newdata = {}
         newdata['_signature'] = signature
@@ -42,14 +44,24 @@ class  SportNode(Node):
         newdata['_amount'] = amount
         newdata['_date'] = date
 
-        #TODO add return
-        pass
-    
+        return checksig and checkhash
+
+    def hash(data):
+        return sha256(data).hexdigest()
 
     def create_message(self, data):
+
         try:
-            data
+            data["_timestamp"] = time.time()
+            data["_hash"] = hash(data)
+        
+        except Exception as e:
+            self.debug_print("Failed to create message", e.__cause__())
+        return data
+            
     
     def send_message(self, message):
-        self.send_to_nodes(self.create_message({"_type": "message", "message": message }))
+        self.send_to_nodes(self.create_message({"_type": "transaction", "message": message}))
+
+
     

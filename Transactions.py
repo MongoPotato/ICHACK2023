@@ -7,11 +7,7 @@ class Transaction:
         self.sender = sender #identified by the public key
         self.receiver = receiver #identified by the public key
         self.amount = amount  #amount of money beign sent after commission is taken by the miner
-        self.date = date 
-<<<<<<< HEAD
-=======
-        self.signature = self.sign()
->>>>>>> 0a4eaef3814dfd4110afff25b3d43dbcfc25e366
+        self.date = date
 
 
     def getSender(self):

@@ -3,19 +3,22 @@ from cryptography.hazmat.primitives.asymmetric import padding
 
 
 class Signing:
-    def __init__(self, public_key, private_key, transaction):
+    def __init__(self, public_key, private_key):
         self.public_key = public_key
         self.private_key = private_key
-        self.transaction = transaction
         self.signature = self.sign()
         self.verify = self.verify()
 
-    def sign(self):
-        return self.private_key.sign(self.transaction, padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH), hashes.SHA256())
+    def createdata(self, transaction):
+        data = {"sender": transaction.getSender(), "receiver": transaction.getReceiver(), "amount": transaction.getAmount()}
+        return data
 
-    def verify(self):
+    def sign(self, transaction):
+        return self.private_key.sign(self.createdata(transaction), padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH), hashes.SHA256())
+
+    def verify(self, transaction, signature):
         try:
-            self.public_key.verify(self.signature, self.transaction, padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH), hashes.SHA256())
+            self.public_key.verify(signature, self.createdata(transaction), padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH), hashes.SHA256())
             return True
         except:
             return False

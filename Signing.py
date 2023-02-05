@@ -1,6 +1,6 @@
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-
+#TODO redo
 
 class Signing:
     def __init__(self, public_key, private_key):
@@ -11,7 +11,7 @@ class Signing:
         data = {"sender": transaction.getSender(), "receiver": transaction.getReceiver(), "amount": transaction.getAmount()}
         return data
 
-    def sign(self, transaction):
+    def signs(self, transaction):
         return self.private_key.sign(self.createdata(transaction), padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH), hashes.SHA256())
 
     def verify(self, transaction, signature):

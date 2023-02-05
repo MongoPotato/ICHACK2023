@@ -14,7 +14,11 @@ def remove_newlines(chain):
 
 print("This program is used to configure your proof-of-workout node and earn money !")
 public_key = input("Put your public key from your crypto-wallet : ")
-print("authentifiez-vous à l'adresse suivante : {}".format(request_session_google(public_key)))
+
+r = request_session_google(public_key)
+print(r)
+
+print("authentifiez-vous à l'adresse suivante : {}".format(request_session_google(public_key)['auth_url']))
 print("congratulations, you are now a pow miner !")
 print("Please run MainNode.py to mine")
 

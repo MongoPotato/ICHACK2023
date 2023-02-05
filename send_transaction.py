@@ -2,8 +2,9 @@ from Transactions import Transaction
 import json
 import time
 from BlockNode import SportNode
-import Signing
+import signing
 from hashlib import sha256
+from signing import Signing
 
 
 def gohash(data):
@@ -11,8 +12,8 @@ def gohash(data):
 
 
 filename = "transaction.json"
-ipnode = ""
-iphost = ""
+ipnode = "146.179.200.156"
+iphost = "146.179.195.212"
 f = open(filename)
 
 data = json.load(f)
@@ -22,8 +23,8 @@ node = SportNode(ipnode, 10002)
 node.start()
 node.connect_with_node(iphost, 10001)
 time.sleep(2)
-
-signature = Signing.sign(transaction)
+signings = Signing(transaction.getSender(), transaction.getReceiver())
+signature = signings.signs(transaction)
 
 message = {}
 message['_transaction'] = "transaction"

@@ -11,6 +11,8 @@ the hostip variable in MainNode.py file
 If you want to create your own wallet and send over money to your friends
 you can run 
 - streamlit run interface_web.py
+If you want to view the blockchain you can run
+- streamlit run view_blockchain.py
 
 
 

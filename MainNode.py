@@ -1,7 +1,7 @@
 from BlockNode import SportNode
 import time
 
-hostip = ""
+hostip = "146.179.200.156"
 node = SportNode(hostip, 10001)
 
 time.sleep(2)

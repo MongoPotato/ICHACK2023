@@ -8,8 +8,8 @@ from Transactions import Transaction
 
 class SportNode(Node):
 
-    def __init__(self, host, port, id=None, callback=None, max_connections=0):
-        super(Node, self).__init__(host, port, id, callback, max_connections)
+    def __init__(self, host, port):
+        super(SportNode, self).__init__(host, port, None)
         
         self.sportblockchain = SportBlockchain()
 

@@ -18,7 +18,6 @@ f = open(filename)
 data = json.load(f)
 
 transaction = Transaction(data['sender'], data['receiver'], data['amount'], data['date'])
-print("hello")
 node = SportNode(ipnode, 10002)
 node.start()
 node.connect_with_node(iphost, 10001)
